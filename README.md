@@ -1,18 +1,18 @@
 # Sistema de Cadastro de Alunos
 
-Aplicação web simples desenvolvida em PHP para cadastrar e consultar alunos armazenados em um banco de dados PostgreSQL. O projeto usa PDO para acessar o banco e variáveis locais de configuração para manter credenciais fora do código-fonte.
+Aplicação web desenvolvida em PHP para cadastrar e consultar alunos armazenados em um banco de dados PostgreSQL. A aplicação usa PDO para acessar o banco e mantém as configurações locais separadas do código-fonte.
 
 ## Funcionalidades
 
 - Cadastro de alunos com nome, sexo, data de nascimento e e-mail.
 - Listagem dos alunos cadastrados.
-- Geração automática do código de cada aluno pelo PostgreSQL.
-- Consulta e gravação de dados usando PDO.
+- Geração automática do código do aluno pelo PostgreSQL.
+- Consultas e inserções com PDO.
 
 ## Tecnologias
 
 - PHP
-- PDO com o driver PostgreSQL (`pdo_pgsql`)
+- PDO com driver PostgreSQL (`pdo_pgsql`)
 - PostgreSQL
 - HTML
 
@@ -20,15 +20,30 @@ Aplicação web simples desenvolvida em PHP para cadastrar e consultar alunos ar
 
 | Arquivo | Finalidade |
 | --- | --- |
-| `cadastrar.php` | Exibe o formulário e grava um novo aluno. |
-| `listar.php` | Consulta e apresenta os alunos cadastrados. |
-| `teste.php` | Verifica se a aplicação consegue conectar ao PostgreSQL. |
+| `cadastrar.php` | Exibe o formulário e cadastra um aluno. |
+| `listar.php` | Consulta e exibe os alunos cadastrados. |
+| `teste.php` | Verifica a conexão com o PostgreSQL. |
 | `conexao.php` | Lê as configurações locais e cria a conexão PDO. |
-| `.gitignore` | Impede que arquivos locais, como `.env`, sejam adicionados ao Git. |
+| `.gitignore` | Exclui arquivos locais, como `.env`, do controle do Git. |
+
+## Requisitos
+
+- PHP instalado no computador que executará a aplicação.
+- Extensões PHP `PDO` e `pdo_pgsql` habilitadas.
+- PostgreSQL instalado e em execução.
+- Conectividade de rede entre o computador que executa o PHP e o servidor PostgreSQL.
+
+Para verificar as extensões no Windows, execute no PowerShell:
+
+```powershell
+php -m | findstr /I "PDO pgsql"
+```
+
+A saída deve incluir `PDO` e `pdo_pgsql`.
 
 ## Banco de dados
 
-A aplicação espera uma tabela chamada `public.aluno` com esta estrutura:
+A aplicação precisa de uma tabela `aluno` com esta estrutura:
 
 ```sql
 CREATE TABLE IF NOT EXISTS public.aluno (
@@ -40,42 +55,27 @@ CREATE TABLE IF NOT EXISTS public.aluno (
 );
 ```
 
-A coluna `codigoaluno` é gerada automaticamente. O campo `email` é opcional.
-
-## Requisitos
-
-- PHP instalado no Windows.
-- Extensões PHP `PDO` e `pdo_pgsql` habilitadas.
-- PostgreSQL instalado e em execução na máquina que hospeda o banco.
-- A máquina Windows deve conseguir acessar o endereço e a porta do PostgreSQL na rede.
-
-Para conferir as extensões disponíveis no PHP, execute no PowerShell:
-
-```powershell
-php -m | findstr /I "PDO pgsql"
-```
-
-A lista deve incluir `PDO` e `pdo_pgsql`.
+Execute o comando no banco que será usado pelo projeto. A conta configurada para a aplicação precisa ter acesso para conectar ao banco, consultar e cadastrar registros nessa tabela.
 
 ## Configuração local
 
-Crie um arquivo `.env` na pasta do projeto com os dados da sua instalação:
+Crie um arquivo `.env` na pasta do projeto:
 
 ```ini
 DB_HOST=ENDERECO_DO_SERVIDOR_POSTGRESQL
 DB_PORT=5432
-DB_NAME=bdaula1
-DB_USER=USUARIO_DO_BANCO
-DB_PASS="SENHA_DO_BANCO"
+DB_NAME=nome_do_banco
+DB_USER=usuario_da_aplicacao
+DB_PASS="senha_local"
 ```
 
-Substitua os valores de exemplo pelos dados corretos do seu ambiente. O usuário configurado precisa ter permissão para conectar ao banco e consultar e inserir registros na tabela `aluno`.
+Substitua os valores de exemplo pelos dados do seu ambiente. A conta do banco usada pela aplicação deve ter apenas as permissões necessárias para o projeto.
 
-**Não publique nem envie o arquivo `.env` ao GitHub.** Ele contém credenciais locais e está listado no `.gitignore`. Cada pessoa que clonar o projeto deve criar seu próprio `.env`.
+O arquivo `.env` contém configurações locais e credenciais. Ele é ignorado pelo Git e **não deve ser publicado no repositório**. Cada pessoa que clonar o projeto deve criar seu próprio `.env`.
 
 ## Executar localmente
 
-No PowerShell, acesse a pasta do projeto e inicie o servidor integrado do PHP:
+No PowerShell, abra a pasta do projeto e inicie o servidor integrado do PHP:
 
 ```powershell
 cd caminho\para\novo-projeto-banco
@@ -85,8 +85,8 @@ php -S 127.0.0.1:8000
 Mantenha o terminal aberto enquanto usa a aplicação. No navegador, acesse:
 
 - Teste de conexão: `http://127.0.0.1:8000/teste.php`
-- Cadastro de aluno: `http://127.0.0.1:8000/cadastrar.php`
-- Lista de alunos: `http://127.0.0.1:8000/listar.php`
+- Cadastro: `http://127.0.0.1:8000/cadastrar.php`
+- Listagem: `http://127.0.0.1:8000/listar.php`
 
 ## Clonar o repositório
 
@@ -95,14 +95,16 @@ git clone https://github.com/PauloRamos38/novo-projeto-banco.git
 cd novo-projeto-banco
 ```
 
-Depois de clonar, crie o `.env` com as configurações do seu próprio banco e inicie o servidor PHP conforme as instruções acima.
+Depois de clonar, configure o `.env` com os dados do seu ambiente e inicie o servidor PHP conforme descrito acima.
 
 ## Segurança
 
-- As credenciais do banco são mantidas localmente no `.env`, fora do repositório.
-- As operações de cadastro usam parâmetros PDO em vez de concatenar os valores enviados pelo formulário diretamente à instrução SQL.
-- Os dados apresentados na lista são escapados para HTML.
+- Use uma conta própria para a aplicação, com acesso limitado às operações necessárias. Evite configurar o PHP com uma conta administrativa do PostgreSQL.
+- Mantenha senhas e configurações específicas no `.env`, fora do repositório.
+- Não publique endereços privados da rede nem dados pessoais reais usados durante os testes.
+- O cadastro usa parâmetros PDO para enviar os dados ao banco.
+- Os valores apresentados na listagem são escapados para HTML.
 
 ## Escopo
 
-Este projeto demonstra conexão PHP com PostgreSQL, cadastro de registros e consulta de dados. O acesso é voltado a um ambiente local de aprendizagem; autenticação de usuários e operações para editar ou excluir alunos não fazem parte do escopo atual.
+Este projeto demonstra uma conexão PHP com PostgreSQL e as operações de cadastro e listagem de alunos. Edição, exclusão e autenticação de usuários não fazem parte do escopo atual. A aplicação foi preparada para uso local e fins de aprendizagem.
